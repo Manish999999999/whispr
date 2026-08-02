@@ -9,7 +9,7 @@ flagged content).
 ## Screenshots
 <table>
   <tr>
-    <td align="center"><b>Home</b><br><img src="frontend/src/assets/hero.png" width="400"/></td>
+    
     <td align="center"><b>Login</b><br><img src="frontend/src/assets/login.png" width="400"/></td>
     <td align="center"><b>Sign Up</b><br><img src="frontend/src/assets/signup.png" width="400"/></td>
   </tr>

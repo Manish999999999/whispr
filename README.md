@@ -9,14 +9,14 @@ flagged content).
 ## Screenshots
 <table>
   <tr>
-    <td align="center"><b>Home</b><br><img src="assets/hero.png" width="400"/></td>
-    <td align="center"><b>Login</b><br><img src="assets/login.png" width="400"/></td>
-    <td align="center"><b>Sign Up</b><br><img src="assets/signup.png" width="400"/></td>
+    <td align="center"><b>Home</b><br><img src="frontend/src/assets/hero.png" width="400"/></td>
+    <td align="center"><b>Login</b><br><img src="frontend/src/assets/login.png" width="400"/></td>
+    <td align="center"><b>Sign Up</b><br><img src="frontend/src/assets/signup.png" width="400"/></td>
   </tr>
   <tr>
-    <td align="center"><b>Feed</b><br><img src="assets/feed.png" width="400"/></td>
-    <td align="center"><b>Create Post</b><br><img src="assets/createpost.png" width="400"/></td>
-    <td align="center"><b>Trending</b><br><img src="assets/trending.png" width="400"/></td>
+    <td align="center"><b>Feed</b><br><img src="frontend/src/assets/feed.png" width="400"/></td>
+    <td align="center"><b>Create Post</b><br><img src="frontend/src/assets/createpost.png" width="400"/></td>
+    <td align="center"><b>Trending</b><br><img src="frontend/src/assets/trending.png" width="400"/></td>
   </tr>
 </table>
 

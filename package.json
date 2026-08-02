@@ -1,0 +1,13 @@
+{
+  "name": "whispr-root",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:full": "concurrently \"cd backend && uvicorn main:app --reload\" \"cd frontend && npm run dev\""
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.4",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5.25",
+    "tailwindcss": "^4.3.3"
+  }
+}

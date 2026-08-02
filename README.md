@@ -1,29 +1,119 @@
-# Whispr - Anonymous Campus Confession Board
+# Whispr — Anonymous Campus Confession Board
 
-## Setup Instructions
+PostgreSQL + Python (FastAPI) API + React (Vite) frontend, built as a DBMS mini project.
+Lets students post confessions anonymously, react with upvotes/downvotes, comment, and flag
+posts — with **automatic, database-driven moderation** once a post is reported enough times.
+Two roles — **student** (post, vote, comment, flag) and **moderator/admin** (review and remove
+flagged content).
 
-1. **Database Requirements:**
-   - PostgreSQL (Local or Cloud like Supabase).
-   - Ensure you have executed `schema.sql` on your database instance to create the tables, triggers, and views.
+## Screenshots
+<table>
+  <tr>
+    <td align="center"><b>Home</b><br><img src="assets/hero.png" width="400"/></td>
+    <td align="center"><b>Login</b><br><img src="assets/login.png" width="400"/></td>
+    <td align="center"><b>Sign Up</b><br><img src="assets/signup.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Feed</b><br><img src="assets/feed.png" width="400"/></td>
+    <td align="center"><b>Create Post</b><br><img src="assets/createpost.png" width="400"/></td>
+    <td align="center"><b>Trending</b><br><img src="assets/trending.png" width="400"/></td>
+  </tr>
+</table>
 
-2. **Backend Setup:**
-   - Navigate to the `backend` directory.
-   - Set up a virtual environment: `python -m venv venv`
-   - Activate it: `.\venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Mac/Linux)
-   - Install dependencies: `pip install -r requirements.txt`
-   - Create a `.env` file in the `backend` directory (or export it):
-     ```
-     DATABASE_URL=postgresql://your_user:your_password@your_host:5432/your_db
-     SECRET_KEY=your_super_secret_key_for_jwt
-     ```
-   - Seed the database: `python seed.py`
-   - Run the API: `uvicorn main:app --reload` (Runs on http://localhost:8000)
+## What it demonstrates
+- Normalized schema (3NF): `users`, `categories`, `posts`, `comments`, `votes`, `flags`, `moderation_log`
+- **Authentication & authorization**: JWT-based login/signup, bcrypt password hashing, role-based access control (student vs moderator/admin)
+- **Triggers**: auto-recalculated upvote/downvote counts on every vote, auto-escalation of a post to `under_review` (+ moderation log entry) once its flag count hits 5
+- **Constraints**: `CHECK` on role/status/vote_type, `UNIQUE(post_id, user_id)` on votes to block duplicate voting, `FOREIGN KEY` throughout
+- **Views**: `trending_posts_view` (top posts by net score, last 24h), `flagged_posts_view` (posts awaiting moderator review)
+- **Indexes** on `posts.created_at`, `posts.status`, and `votes(post_id, user_id)` for query performance
+- **Anonymity by design**: `user_id` is stored on every post/comment for accountability, but never exposed to other users in the API responses or UI
 
-3. **Frontend Setup:**
-   - Navigate to the `frontend` directory.
-   - Install packages: `npm install`
-   - Run the React app: `npm run dev`
+## Database Structure
+The system consists of the following main tables:
+- Users *(student, moderator, and admin accounts, differentiated by a `role` column)*
+- Categories
+- Posts
+- Comments
+- Votes
+- Flags
+- Moderation_Log
 
-## ERD Generation
-To generate an Entity Relationship Diagram (ERD), you can use [dbdiagram.io](https://dbdiagram.io). 
-Simply copy the contents of `schema.sql` and paste them into their SQL importer (or rewrite them into DBML format). The raw PostgreSQL DDL we've written works perfectly with many modern ERD tools!
+### Relationships
+- One User can author many Posts
+- One Category can have many Posts
+- One Post can have many Comments
+- One Post can have many Votes, at most one per User
+- One Post or Comment can have many Flags
+- One Post can have many Moderation_Log entries
+
+## Tech stack
+- **Database**: PostgreSQL
+- **Backend**: FastAPI, SQLAlchemy, Pydantic, python-jose (JWT), bcrypt
+- **Frontend**: React 19 + Vite, React Router
+
+## Project Structure
+```
+whispr/
+├── backend/
+│   ├── main.py              # FastAPI app & route registration
+│   ├── database.py          # SQLAlchemy engine/session setup
+│   ├── auth.py               # password hashing, JWT issuing/verification, role guards
+│   ├── models.py             # SQLAlchemy models
+│   ├── routers/
+│   │   ├── auth_router.py    # signup/login
+│   │   ├── posts_router.py   # posts, votes, comments, flags
+│   │   └── moderation_router.py  # flagged post review (moderator/admin only)
+│   ├── seed.py                # sample data (students, moderator, admin, posts, votes, flags)
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   └── src/pages/
+│       ├── LoginSignup.jsx
+│       ├── Feed.jsx
+│       ├── CreatePost.jsx
+│       ├── PostDetail.jsx
+│       ├── ModeratorDashboard.jsx
+│       └── Trending.jsx
+├── schema.sql                 # DDL: tables, triggers, views, indexes
+├── sample_queries.sql
+└── README.md
+```
+
+## Setup
+
+### 1. Database
+```bash
+createdb whispr
+psql -d whispr -f schema.sql
+```
+
+### 2. Backend (FastAPI)
+```bash
+cd backend
+cp .env.example .env       # set DATABASE_URL and SECRET_KEY
+python3 -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python seed.py              # populates sample users, posts, votes, flags
+uvicorn main:app --reload --port 8000
+```
+Runs on `http://localhost:8000`. Interactive API docs (auto-generated by FastAPI) are at
+`http://localhost:8000/docs`.
+
+Seed data includes ready-to-use logins (all share the password `password123`):
+| Role      | Email        |
+|-----------|--------------|
+| student   | s1@test.com  |
+| student   | s2@test.com  |
+| student   | s3@test.com  |
+| moderator | m1@test.com  |
+| admin     | a1@test.com  |
+
+### 3. Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Runs on `http://localhost:5173` and proxies API calls to the backend.
